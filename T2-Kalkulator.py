@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt
 class KalkulatorWindows(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Kalkulator Sederhana")
+        self.setWindowTitle("Kalkulator")
         self.resize(400, 150)
 
         self.layout_utama = QVBoxLayout()
@@ -59,7 +59,7 @@ class KalkulatorWindows(QWidget):
         angka_1 = float(self.input_pertama.text())
         angka_2 = float(self.input_kedua.text())
         operasi = self.combo_operasi.currentText()
-        
+
         hasil = 0
 
         if operasi == "+":
