@@ -1,0 +1,196 @@
+import sys
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QDateEdit, QTextEdit, QMessageBox, QProgressBar
+from PySide6.QtCore import Qt, Signal
+
+class RegistrasiWindow(QWidget):
+    sinyal_pindah = Signal(int, str)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Form Registrasi")
+        self.resize(400, 450)
+
+        self.layout_utama = QVBoxLayout()
+        self.stack = QStackedWidget()
+
+        self.label_progress = QLabel("Step 1: Data Pribadi")
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setMaximum(4)
+        self.progress_bar.setValue(1)
+
+        self.layout_utama.addWidget(self.label_progress)
+        self.layout_utama.addWidget(self.progress_bar)
+        self.layout_utama.addWidget(self.stack)
+
+        self.widget_step1 = QWidget()
+        self.layout_step1 = QVBoxLayout()
+        self.input_nama = QLineEdit()
+        self.input_nama.setPlaceholderText("Nama Lengkap")
+        self.input_tgl = QDateEdit()
+        self.combo_jk = QComboBox()
+        self.combo_jk.addItem("Laki-laki")
+        self.combo_jk.addItem("Perempuan")
+        self.btn_next1 = QPushButton("Next")
+        self.btn_next1.setEnabled(False)
+
+        self.layout_step1.addWidget(self.input_nama)
+        self.layout_step1.addWidget(self.input_tgl)
+        self.layout_step1.addWidget(self.combo_jk)
+        self.layout_step1.addWidget(self.btn_next1)
+        self.widget_step1.setLayout(self.layout_step1)
+
+        self.widget_step2 = QWidget()
+        self.layout_step2 = QVBoxLayout()
+        self.input_email = QLineEdit()
+        self.input_email.setPlaceholderText("Email")
+        self.input_telp = QLineEdit()
+        self.input_telp.setPlaceholderText("No Telepon")
+        self.input_alamat = QTextEdit()
+        self.btn_prev2 = QPushButton("Back")
+        self.btn_next2 = QPushButton("Next")
+        self.btn_next2.setEnabled(False)
+
+        self.layout_step2.addWidget(self.input_email)
+        self.layout_step2.addWidget(self.input_telp)
+        self.layout_step2.addWidget(self.input_alamat)
+        self.layout_tombol2 = QHBoxLayout()
+        self.layout_tombol2.addWidget(self.btn_prev2)
+        self.layout_tombol2.addWidget(self.btn_next2)
+        self.layout_step2.addLayout(self.layout_tombol2)
+        self.widget_step2.setLayout(self.layout_step2)
+
+        self.widget_step3 = QWidget()
+        self.layout_step3 = QVBoxLayout()
+        self.input_user = QLineEdit()
+        self.input_user.setPlaceholderText("Username")
+        self.input_pass = QLineEdit()
+        self.input_pass.setPlaceholderText("Password")
+        self.input_pass.setEchoMode(QLineEdit.EchoMode.Password)
+        self.input_pass2 = QLineEdit()
+        self.input_pass2.setPlaceholderText("Confirm Password")
+        self.input_pass2.setEchoMode(QLineEdit.EchoMode.Password)
+        self.btn_prev3 = QPushButton("Back")
+        self.btn_next3 = QPushButton("Review")
+        self.btn_next3.setEnabled(False)
+
+        self.layout_step3.addWidget(self.input_user)
+        self.layout_step3.addWidget(self.input_pass)
+        self.layout_step3.addWidget(self.input_pass2)
+        self.layout_tombol3 = QHBoxLayout()
+        self.layout_tombol3.addWidget(self.btn_prev3)
+        self.layout_tombol3.addWidget(self.btn_next3)
+        self.layout_step3.addLayout(self.layout_tombol3)
+        self.widget_step3.setLayout(self.layout_step3)
+
+        self.widget_review = QWidget()
+        self.layout_review = QVBoxLayout()
+        self.label_review = QLabel("Data kosong")
+        self.btn_prev4 = QPushButton("Back")
+        self.btn_submit = QPushButton("Submit")
+
+        self.layout_review.addWidget(self.label_review)
+        self.layout_tombol4 = QHBoxLayout()
+        self.layout_tombol4.addWidget(self.btn_prev4)
+        self.layout_tombol4.addWidget(self.btn_submit)
+        self.layout_review.addLayout(self.layout_tombol4)
+        self.widget_review.setLayout(self.layout_review)
+
+        self.stack.addWidget(self.widget_step1)
+        self.stack.addWidget(self.widget_step2)
+        self.stack.addWidget(self.widget_step3)
+        self.stack.addWidget(self.widget_review)
+
+        self.setLayout(self.layout_utama)
+
+        self.input_nama.textChanged.connect(self.cek_step1)
+        
+        self.input_email.textChanged.connect(self.cek_step2)
+        self.input_telp.textChanged.connect(self.cek_step2)
+        self.input_alamat.textChanged.connect(self.cek_step2)
+        
+        self.input_user.textChanged.connect(self.cek_step3)
+        self.input_pass.textChanged.connect(self.cek_step3)
+        self.input_pass2.textChanged.connect(self.cek_step3)
+
+        self.btn_next1.clicked.connect(self.ke_step2)
+        
+        self.btn_prev2.clicked.connect(self.ke_step1)
+        self.btn_next2.clicked.connect(self.ke_step3)
+        
+        self.btn_prev3.clicked.connect(self.ke_step2)
+        self.btn_next3.clicked.connect(self.ke_review)
+        
+        self.btn_prev4.clicked.connect(self.ke_step3)
+        self.btn_submit.clicked.connect(self.submit_data)
+
+        self.sinyal_pindah.connect(self.update_progress)
+
+
+    def cek_step1(self):
+        if self.input_nama.text() != "":
+            self.btn_next1.setEnabled(True)
+        else:
+            self.btn_next1.setEnabled(False)
+
+    def cek_step2(self):
+        em = self.input_email.text()
+        tl = self.input_telp.text()
+        al = self.input_alamat.toPlainText()
+        
+        if "@" in em and tl.isdigit() and al != "":
+            self.btn_next2.setEnabled(True)
+        else:
+            self.btn_next2.setEnabled(False)
+
+    def cek_step3(self):
+        us = self.input_user.text()
+        p1 = self.input_pass.text()
+        p2 = self.input_pass2.text()
+        
+        if us != "" and p1 != "" and p1 == p2:
+            self.btn_next3.setEnabled(True)
+        else:
+            self.btn_next3.setEnabled(False)
+
+    def ke_step1(self):
+        self.stack.setCurrentIndex(0)
+        self.sinyal_pindah.emit(1, "Data Pribadi")
+
+    def ke_step2(self):
+        self.stack.setCurrentIndex(1)
+        self.sinyal_pindah.emit(2, "Kontak")
+
+    def ke_step3(self):
+        self.stack.setCurrentIndex(2)
+        self.sinyal_pindah.emit(3, "Akun")
+
+    def ke_review(self):
+        nm = self.input_nama.text()
+        tg = self.input_tgl.text()
+        jk = self.combo_jk.currentText()
+        em = self.input_email.text()
+        tl = self.input_telp.text()
+        al = self.input_alamat.toPlainText()
+        us = self.input_user.text()
+
+        teks = f"Nama: {nm}\nTgl Lahir: {tg}\nGender: {jk}\nEmail: {em}\nTelp: {tl}\nAlamat: {al}\nUsername: {us}"
+        self.label_review.setText(teks)
+
+        self.stack.setCurrentIndex(3)
+        self.sinyal_pindah.emit(4, "Review Data")
+
+    def update_progress(self, step, pesan):
+        self.progress_bar.setValue(step)
+        self.label_progress.setText(f"Step {step}: {pesan}")
+
+    def submit_data(self):
+        box = QMessageBox()
+        box.setText("Data beres disubmit!")
+        box.exec()
+        self.close()
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    jendela = RegistrasiWindow()
+    jendela.show()
+    sys.exit(app.exec())
